@@ -25,7 +25,7 @@ class Blod(Handler):
 class MainPage(Handler):
 	def get(self):
 		#if self.request.get
-		self.render("randomize.html", blob=randomize(blubs), blub=randomize(blubs), darrenanderson=randomize(blobs))
+		self.render("randomize.html", blob=randomize(blubs), blub=randomize(blubs), darrenanderson=randomize(blobs), nomad=randomize(blobs))
 
 blubs = ['j my b', 
 	     'j the b', 
