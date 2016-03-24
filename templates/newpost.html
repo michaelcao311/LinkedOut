@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+	<body>
+		<form method="post">
+			<label>
+				Subject
+				<br>
+				<input autofocus style="font-family: monospace;" type="text" name="subject">
+			</label>
+			<br>
+			<label>
+				Content
+				<br>
+				<textarea style="font-family: monospace;" name="content"></textarea>
+			</label>
+			<br>
+			<div style="color: red">{{error}}</div>
+			<br>
+			<button type="submit"> ¯\_(ツ)_/¯</button>
+		</form>
+		<br>
+		<hr>
+		
+	</body>
+{% endblock %}

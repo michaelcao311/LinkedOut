@@ -1,7 +1,7 @@
 import os
 import webapp2
 import jinja2
-import random
+from random_blobs import randomize, blubs, blobs
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -19,48 +19,61 @@ class Handler(webapp2.RequestHandler):
 	def render(self, template, **kw):
 		self.write(self.render_str(template, **kw))
 
-class Blod(Handler):
+class MainPage(Handler):
 	pass
 
-class MainPage(Handler):
+class RandomPage(Handler):
 	def get(self):
-		#if self.request.get
-		self.render("randomize.html", blob=randomize(blubs), blub=randomize(blubs), darrenanderson=randomize(blobs), nomad=randomize(blobs))
+		if self.request.get('blod') == 'blod':
+			self.redirect('/blod')
+		else:
+			self.render("randomize.html", blob=randomize(blubs), 
+				    blub=randomize(blubs), 
+				    darrenanderson=randomize(blobs), 
+				    nomad=randomize(blobs))
 
-blubs = ['j my b', 
-	     'j the b', 
-	     'b the b', 
-	     'space invaders', 
-	     'tictactoe', 
-	     'blod', 
-	     'russell wilson', 
-	     'uhhhh', 
-	     'arcade fire', 
-	     'arcade lier', 
-	     'arcade lion', 
-	     'arcade lyer', 
-	     'arcade pyre', 
-	     'i should\'ve arcade inspired'
-	     ]
+class Blod(Handler):
+	def get(self):
+		posts = db.GqlQuery('select * from Post order by created desc')
+		render('blod.html', posts=posts)
 
-blobs = ['http://static3.techinsider.io/image/55ba6d1f371d22dd2e8ba492-1106-1012/screen%%20shot%%202015-07-30%%20at%%202.31.57%%20pm.png',
-		 'http://i.imgur.com/mUWtowV.jpg',
-		 'https://img.buzzfeed.com/buzzfeed-static/static/2015-05/11/14/campaign_images/webdr02/1272-rare-pepes-2-32128-1431369756-0_dblbig.jpg',
-		 'https://img.buzzfeed.com/buzzfeed-static/static/2015-10/27/17/enhanced/webdr11/enhanced-mid-29607-1445980104-1.jpg',
-		 'https://img.buzzfeed.com/buzzfeed-static/static/2015-10/27/17/campaign_images/webdr06/what-is-the-market-value-of-a-rare-pepe-2-28727-1445981181-8_big.jpg',
-		 'http://static.fjcdn.com/pictures/Rare+pepe+s+get+yer+rare+pepe+s+here_5a814b_5507279.jpg',
-		 'http://static.fjcdn.com/pictures/Rare_1d0057_5507279.jpg',
-		 'http://static.fjcdn.com/pictures/Rare_2b6c68_5507279.jpg',
-		 'http://static.fjcdn.com/pictures/Rare_a41f3a_5507279.jpg',
-		 'http://static.fjcdn.com/pictures/Rare_7b92c8_5507279.jpg',
-		 'http://static.fjcdn.com/pictures/Rare_26283b_5507279.jpg',
-		 ]
+class NewPost(Handler):
+	def render_page(self, subject='', content='', error=''):
+		self.render('newpost.html', subject=subject, content=content, error=error)
 
-def randomize(blib):
-	temp = random.randrange(0, len(blib))
-	return blib[temp]
+	def get(self):
+		self.render_page()
+
+	def post(self):
+		subject = self.request.get('subject')
+		content = self.request.get('content')
+
+		if subject or content:
+			if (not subject) or (not content):
+				self.render_page(subject, content, 'subject and content, please!')
+			else:
+				p = Post(subject=subject, content=content)
+				p.put()
+				key = str(p.key().id())
+				self.redirect('/blod/%s' % key)
+		else:
+			self.render_page()
+
+class PostHandler(Handler):
+	def get(self, post_id):
+		post = Post.get_by_id(int(post_id))
+		if post:
+			self.render('post.html', post=post)
+
+class Post(db.Model):
+	subject = db.StringProperty(required = True)
+	content = db.TextProperty(required = True)
+	created = db.DateTimeProperty(auto_now_add = True)
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage),
-    ('/blod', Blod)
+	('/', MainPage),
+    ('/random', RandomPage),
+    ('/blod', Blod),
+    ('/blod/newpost', NewPost),
+    ('/blod/([0-9]+)', PostHandler)
 ], debug=True)
