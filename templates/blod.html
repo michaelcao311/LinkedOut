@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+	<a href="/blod/newblod" style="font-size: 30px; color: black; text-decoration: none; padding: 0px; margin-bottom: 0px"><strong>blods</strong></h2>
+		{% for post, id in posts %}
+			<div>
+				<a style="margin-bottom: 0; text-decoration-style: none; float: right; text-align: right; color: black" href="/blod/{{id}}">{{post.created.month}}/{{post.created.day}}/{{post.created.year}}, {{post.created.hour}}:{{post.created.minute}}</a>
+			</div>
+			<br>
+			<p><strong>{{post.subject}}</strong>:</p>
+		<blockquote style="text-indent: 50px">{{post.content}}</blockquote>
+		<hr>
+	{% endfor %}
+{% endblock %}

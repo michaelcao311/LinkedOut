@@ -35,7 +35,7 @@ class RandomPage(Handler):
 class Blod(Handler):
 	def get(self):
 		posts = db.GqlQuery('select * from Post order by created desc')
-		render('blod.html', posts=posts)
+		self.render('blod.html', posts=[(post, str(post.key().id())) for post in posts])
 
 class NewPost(Handler):
 	def render_page(self, subject='', content='', error=''):
@@ -71,9 +71,9 @@ class Post(db.Model):
 	created = db.DateTimeProperty(auto_now_add = True)
 
 app = webapp2.WSGIApplication([
-	('/', MainPage),
-    ('/random', RandomPage),
-    ('/blod', Blod),
-    ('/blod/newpost', NewPost),
-    ('/blod/([0-9]+)', PostHandler)
-], debug=True)
+		('/', MainPage),
+    	('/random', RandomPage),
+   		('/blod', Blod),
+    	('/blod/newblod', NewPost),
+    	('/blod/([0-9]+)', PostHandler)
+	], debug=True)
